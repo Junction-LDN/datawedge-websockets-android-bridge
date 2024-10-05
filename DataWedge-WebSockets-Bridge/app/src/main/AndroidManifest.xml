@@ -4,6 +4,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
     <application
         android:allowBackup="true"
@@ -26,6 +28,7 @@
         <service
             android:name=".WebSocketIntentService"
             android:enabled="true"
+            android:foregroundServiceType="connectedDevice"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.symbol.datawedge.barcode.ACTION" />
