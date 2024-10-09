@@ -3,19 +3,24 @@ package com.darryncampbell.datawedge_websockets_bridge;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+
+import com.darryncampbell.datawedge_websockets_bridge.dto.Barcode;
+import com.google.gson.Gson;
+
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
-import java.net.InetSocketAddress;
 import org.java_websocket.server.WebSocketServer;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.net.InetSocketAddress;
 
 public class MySocketServer extends WebSocketServer {
 
     private WebSocket mSocket;
     private static final String TAG = "Datawedge WS Bridge";
     private Intent bufferedScan = null;
-    private Context context;
+    private final Context context;
     private static final String datawedge_intent_key_source = "com.symbol.datawedge.source";
     private static final String datawedge_intent_key_label_type = "com.symbol.datawedge.label_type";
     private static final String datawedge_intent_key_data = "com.symbol.datawedge.data_string";
@@ -51,6 +56,7 @@ public class MySocketServer extends WebSocketServer {
             String action = jsonObject.getString("action");
             String key = jsonObject.getString("extra_key");
             String value = jsonObject.getString("extra_value");
+
             if (action != null && key != null && value != null)
             {
                 Intent dwIntent = new Intent();
@@ -77,10 +83,17 @@ public class MySocketServer extends WebSocketServer {
             String decodedSource = intent.getStringExtra(datawedge_intent_key_source);
             String decodedData = intent.getStringExtra(datawedge_intent_key_data);
             String decodedLabelType = intent.getStringExtra(datawedge_intent_key_label_type);
-            String message = "Barcode (" + decodedData + ") [" + decodedLabelType + "]";
-            Log.i(TAG, "Message to send: " + message);
 
-            mSocket.send(message);
+            Barcode barcode = new Barcode(
+                    "BARCODE_SCAN",
+                    decodedData,
+                    decodedLabelType
+            );
+
+            // Send the json using Gson
+            Gson gson = new Gson();
+            String jsonBarcode = gson.toJson(barcode);
+            mSocket.send(jsonBarcode);
         }
         else {
             //  If the client has not yet connected to us but we have received a scan then buffer it
